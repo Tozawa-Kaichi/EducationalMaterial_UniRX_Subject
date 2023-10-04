@@ -1,0 +1,83 @@
+この教材はUniRXのサブジェクト・サブスクライブを学ぶものであり、リアクティブプロパティを学ぶものではありません。
+
+UniRxにおけるサブジェクト（Subject）とサブスクライブ（Subscribe）は、リアクティブプログラミングにおいて非常に重要なコンセプトです。サブジェクトはイベントストリームを生成し、サブスクライブはそのストリームを購読し、イベントを受け取るプロセスです。以下に解説と具体的な使い方を示します。
+
+サブジェクト（Subject）
+サブジェクトは、Observable（イベントストリームの発行者）とObserver（イベントストリームの購読者）の役割を兼ね備えたオブジェクトです。主に以下の2つのタイプのサブジェクトがあります。
+
+Subject: これはオブザーバブルとオブザーバの両方として振る舞うサブジェクトです。つまり、データを生成して同時に購読できるという特性を持っています。SubjectはSubject<T>クラスを使って作成します。
+
+ReactiveProperty: これは特定の値を監視し、その値が変更されたときに通知を発行するサブジェクトです。ReactivePropertyはReactiveProperty<T>クラスを使って作成します。
+
+Subjectの使い方
+以下は、Subjectの基本的な使い方の例です。
+
+csharp
+Copy code
+using UniRx;
+using UnityEngine;
+
+public class SubjectExample : MonoBehaviour
+{
+    private Subject<int> subject = new Subject<int>();
+
+    private void Start()
+    {
+        // サブジェクトに値を送信
+        subject.OnNext(1);
+        subject.OnNext(2);
+        subject.OnNext(3);
+
+        // サブジェクトを購読し、値を受け取る
+        subject.Subscribe(value => Debug.Log("Received: " + value));
+
+        // サブジェクトに新しい値を送信
+        subject.OnNext(4);
+    }
+}
+この例では、subjectというSubjectを作成し、値を送信してからそれを購読しています。Subscribeメソッドを使用して、Subjectから値を受け取るためのコールバック関数を指定します。
+
+サブスクライブ（Subscribe）
+サブスクライブは、イベントストリームを監視し、ストリーム内の新しいイベントを受け取るプロセスです。サブスクライブはSubscribeメソッドを使用して行います。サブスクライブには、次のような処理を指定できます。
+
+csharp
+Copy code
+observable.Subscribe(
+    value => // onNext: 新しい値が発生したときの処理,
+    error => // onError: エラーが発生したときの処理,
+    () => // onCompleted: ストリームが完了したときの処理
+);
+具体的な使用例を示します。
+
+csharp
+Copy code
+using UniRx;
+using UnityEngine;
+
+public class SubscribeExample : MonoBehaviour
+{
+    private void Start()
+    {
+        var subject = new Subject<int>();
+
+        // サブジェクトを購読
+        var subscription = subject.Subscribe(
+            value => Debug.Log("Received: " + value),
+            error => Debug.LogError("Error: " + error),
+            () => Debug.Log("Completed")
+        );
+
+        // サブジェクトに値を送信
+        subject.OnNext(1);
+        subject.OnNext(2);
+
+        // サブスクライプションを解除
+        subscription.Dispose();
+
+        // サブジェクトに新しい値を送信（この値は購読されない）
+        subject.OnNext(3);
+    }
+}
+この例では、Subjectを作成し、Subscribeメソッドを使用してそのストリームを購読します。SubscriptionをDisposeすることで、購読を解除できます。Disposeされた後は、新しい値がストリームから購読されなくなります。
+
+UniRxのSubjectとSubscribeを使うことで、リアクティブなプログラミングのパターンをUnityプロジェクトに導入できます。これにより、非同期イベントの処理、UIのデータバインディング、状態管理などをより効率的に行うことができます。
